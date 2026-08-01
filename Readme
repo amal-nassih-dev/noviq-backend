@@ -1,0 +1,9 @@
+## db access
+- you need first to start docker 
+- specify the in docker-compose the info for the service you need to use for example posgresql
+- you need to specify in the application.properties which db properties to use
+- create in resources/sql/migration an initial DB which the first thing runs 
+- to check directly in the db open the container in docker deskop then run the terminal and the run psql -U noviq -d noviq after that you can run whatever you want in the db 
+- to list the tables use : \dt
+- when finished just use \q
+- if you change the initial schema you will need to stop using docker compose down -v to remove the volumes as well and start the container one more time because Flyway uses version to compare and update the schema.
