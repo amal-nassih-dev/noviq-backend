@@ -11,21 +11,53 @@ import com.noviq.backend.users.dto.UserResponse;
 import com.noviq.backend.auth.dto.AuthenticationResponse;
 import com.noviq.backend.auth.dto.LoginRequest;
 import com.noviq.backend.users.Role;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import com.noviq.backend.security.JwtService;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
 
    private final UserRepository userRepository;
    private final PasswordEncoder passwordEncoder;
+   private final AuthenticationManager authenticationManager;
+   private final JwtService jwtService;
 
-    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
     }
 
+    /**
+     * Authenticates a user based on the provided login request. If the email or password is invalid, an exception is thrown this is done by spring security.
+     *
+     * @param request The login request containing user credentials.
+     */
    public AuthenticationResponse login(LoginRequest request) {
-      return null;
-   }
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.email(),
+                        request.password()
+                )
+        );
+
+        User user = userRepository.findByEmailIgnoreCase(request.email())
+        .orElseThrow(() ->
+                new IllegalStateException(
+                        "Authenticated user not found."
+                ));
+
+        String jwt = jwtService.generateToken(user);
+
+        return new AuthenticationResponse(
+                jwt,
+                UserResponse.from(user)
+        );
+    }
+
+
    /**
     * Registers a new user based on the provided registration request. we hash the password before saving the user to the database. 
     * If the email already exists, an exception is thrown.
@@ -42,6 +74,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User newUser = new User(request.email(), request.fullName(), hashedPassword);
         newUser.setRole(Role.USER);
         User savedUser = userRepository.save(newUser);
-        return new AuthenticationResponse("dummy-token" + hashedPassword, UserResponse.from(savedUser));
+        String jwt = jwtService.generateToken(savedUser);
+        return new AuthenticationResponse(jwt, UserResponse.from(savedUser));
    }
 }

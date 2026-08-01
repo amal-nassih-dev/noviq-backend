@@ -1,6 +1,8 @@
 package com.noviq.backend.users;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -13,9 +15,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -59,9 +66,7 @@ public class User {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
-    public String getPassword() {
-        return password;
-    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -70,6 +75,39 @@ public class User {
     }
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() { // this to be able to use  @PreAuthorize("hasRole('ADMIN')") in the controller to restrict access to certain endpoints based on user roles.
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return this.getEmail();
+    }
+
+    @Override
+    public String getPassword() { return this.password; }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     @Override

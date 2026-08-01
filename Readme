@@ -7,3 +7,7 @@
 - to list the tables use : \dt
 - when finished just use \q
 - if you change the initial schema you will need to stop using docker compose down -v to remove the volumes as well and start the container one more time because Flyway uses version to compare and update the schema.
+
+
+## Security
+- you need to go export a JWT_SECRET, for example export JWT_SECRET="THIS_IS_MY_SUPER_SECRET_KEY_12345678901234567890" this is going to be used in order to create and sign the tokens for every request I have already gave it a fallback if it is not set
