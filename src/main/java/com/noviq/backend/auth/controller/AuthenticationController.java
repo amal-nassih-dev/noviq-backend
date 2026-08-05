@@ -12,6 +12,7 @@ import com.noviq.backend.auth.dto.RegistrationRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestBody;
 
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {

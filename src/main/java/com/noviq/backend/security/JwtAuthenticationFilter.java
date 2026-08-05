@@ -60,13 +60,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken); // Set the authentication in the security context, allowing the user to be authenticated for this request
                 // after this line the user is authenticated and can access secured endpoints based on their roles and permissions, and Spring will know infos about the user and their roles for the current request.
                 // we can use @AuthenticationPrincipal User user or SecurityContextHolder.getContext().getAuthentication().getPrincipal() to get the user details in the controller.
-                }
+                System.out.println(SecurityContextHolder.getContext().getAuthentication());    
+            }
 
             }
         } catch (JwtException ex) {
             filterChain.doFilter(request, response);
             return;
-        }  
+        } 
 
         filterChain.doFilter(request, response); // Continue the filter chain after processing the JWT
     } 

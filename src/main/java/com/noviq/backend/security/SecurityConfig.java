@@ -14,19 +14,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.config.Customizer;
 
 @Configuration
 @EnableWebSecurity
 @EnableConfigurationProperties(JwtProperties.class)
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final AuthenticationProvider authenticationProvider;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, AuthenticationProvider authenticationProvider) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.authenticationProvider = authenticationProvider;
-    }
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -87,22 +81,31 @@ public class SecurityConfig {
      * Disables CSRF protection and sets up authorization rules for different endpoints.
      *
      * @param http The HttpSecurity object to configure.
+     * @param jwtAuthenticationFilter The JWT authentication filter to validate JWT tokens.
+     * @param authenticationProvider The authentication provider to handle user authentication.
      * @return The configured SecurityFilterChain.
      * @throws Exception If an error occurs during configuration.
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            AuthenticationProvider authenticationProvider)
             throws Exception {
 
         http
             .csrf(csrf -> csrf.disable())
+            .cors(Customizer.withDefaults()) // Without it, Spring Security blocks the browser's preflight request.
             .sessionManagement(session ->
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/auth/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/v3/api-docs/**").permitAll()
                     .anyRequest().authenticated())
             .authenticationProvider(authenticationProvider)
-            .addFilterBefore(
+            .addFilterBefore( // add the JWT authentication filter before the UsernamePasswordAuthenticationFilter in the filter chain
                     jwtAuthenticationFilter,
                     UsernamePasswordAuthenticationFilter.class
             )

@@ -2,6 +2,7 @@ package com.noviq.backend.auth.service;
 
 import com.noviq.backend.auth.dto.RegistrationRequest;
 import com.noviq.backend.common.exceptions.EmailAlreadyExistsException;
+import com.noviq.backend.common.exceptions.InvalidCredentialsException;
 import com.noviq.backend.users.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import com.noviq.backend.auth.dto.AuthenticationResponse;
 import com.noviq.backend.auth.dto.LoginRequest;
 import com.noviq.backend.users.Role;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import com.noviq.backend.security.JwtService;
 
@@ -36,12 +38,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * @param request The login request containing user credentials.
      */
    public AuthenticationResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.email(),
-                        request.password()
-                )
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.email(),
+                            request.password()
+                    )
+            );
+        } catch (BadCredentialsException ex) {
+
+            throw new InvalidCredentialsException(
+                    "Invalid email or password");
+        }
+        
 
         User user = userRepository.findByEmailIgnoreCase(request.email())
         .orElseThrow(() ->
