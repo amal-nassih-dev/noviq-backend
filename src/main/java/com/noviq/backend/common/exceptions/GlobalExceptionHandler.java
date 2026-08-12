@@ -167,4 +167,94 @@ public class GlobalExceptionHandler {
                         request.getRequestURI()
                 ));
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(
+            UserNotFoundException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(
+                        Instant.now(),
+                        HttpStatus.NOT_FOUND.value(),
+                        HttpStatus.NOT_FOUND.getReasonPhrase(),
+                        "User Not found.",
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(OrganizationMemberAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleMemberAlreadyExist(
+            OrganizationMemberAlreadyExistsException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(
+                        Instant.now(),
+                        HttpStatus.CONFLICT.value(),
+                        HttpStatus.CONFLICT.getReasonPhrase(),
+                        "User is already a member of this organization.",
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(OrganizationMemberNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleMemberNotFoundException(
+            OrganizationMemberNotFoundException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(
+                        Instant.now(),
+                        HttpStatus.NOT_FOUND.value(),
+                        HttpStatus.NOT_FOUND.getReasonPhrase(),
+                        "User is not a member of this organization.",
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(InvalidOrganizationRoleException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidOrganizationRole(
+            InvalidOrganizationRoleException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(
+                        Instant.now(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                        "The requested organization role is invalid.",
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(ProjectNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidOrganizationRole(
+            ProjectNotFoundException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(
+                        Instant.now(),
+                        HttpStatus.NOT_FOUND.value(),
+                        HttpStatus.NOT_FOUND.getReasonPhrase(),
+                        "Project does not exist",
+                        request.getRequestURI()
+                ));
+    }
+
+    @ExceptionHandler(TaskNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidOrganizationRole(
+            TaskNotFoundException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse(
+                        Instant.now(),
+                        HttpStatus.NOT_FOUND.value(),
+                        HttpStatus.NOT_FOUND.getReasonPhrase(),
+                        "Task does not exist",
+                        request.getRequestURI()
+                ));
+    }
 }

@@ -8,6 +8,8 @@ public record OrganizationRequest(
     @Size(max=255)
     String name,
     @Size(max=500)
-    String description
+    String description,
+    @Size(max=500)
+    String logoUrl
 ) {
 }

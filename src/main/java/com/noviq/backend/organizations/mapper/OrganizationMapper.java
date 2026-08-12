@@ -10,14 +10,17 @@ import com.noviq.backend.users.User;
 @Component
 public class OrganizationMapper {
 
-    public OrganizationMapper(){
-
-    }
     public Organization toEntity( OrganizationRequest request, User owner) {
-        return new Organization(request.name(), request.description(), owner);
+        return new Organization(request.name(), request.description(), owner, request.logoUrl());
     }
 
-    public OrganizationResponse toResponse(Organization org) {
-        return new OrganizationResponse(org.getId(), org.getName(),org.getDescription());
+    public OrganizationResponse toResponse(Organization org, long memberCount,
+            long projectCount,
+            long taskCount,
+            long doneTaskCount) {
+        return new OrganizationResponse(org.getId(), org.getName(),org.getDescription(), org.getLogoUrl(), org.getOwner().getId(), org.getCreatedAt(),memberCount,
+            projectCount,
+            taskCount,
+            doneTaskCount);
     }
 }

@@ -1,11 +1,12 @@
-package com.noviq.backend.organizations.entity;
+package com.noviq.backend.projects.entity;
 
 import java.time.Instant;
 import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import com.noviq.backend.projects.entity.Project;
+import com.noviq.backend.organizations.entity.Organization;
+import com.noviq.backend.tasks.entity.Task;
 import com.noviq.backend.users.User;
 
 import jakarta.persistence.Column;
@@ -18,19 +19,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
 /**
  * 
- * Organization represents a workspace/company/team in Noviq.
- * An organization:
- * 
- *  has one owner (User)
- *  has many members through OrganizationMember
- *  has many projects
- *  can have a name, description, and logo
+ * Project represents a project inside an organization.
  */
 @Entity
-@Table(name = "organizations")
-public class Organization {
+@Table(name = "projects")
+public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,98 +34,91 @@ public class Organization {
 
     @Column(nullable = false)
     private String name;
-    @Column
+
+    @Column(length = 500)
     private String description;
 
     @CreationTimestamp
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name="owner_id" , nullable = false)
     private User owner;
 
-    @Column(name = "logo_url", length = 500)
-    private String logoUrl;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name="organization_id" , nullable = false)
+    private Organization organization;
 
-    @OneToMany(mappedBy = "organization")
-    private List<Project> projects;
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    private List<Task> tasks;
 
-    @OneToMany(mappedBy = "org", fetch = FetchType.LAZY)
-    private List<OrganizationMember> members;
+    public Project(){}
 
-    public Organization()
-    {}
-
-    public Organization(String name, String description, User owner, String logoUrl)
-    {
+    public Project(String name, String description, User owner, Organization organization){
         this.name = name;
         this.description = description;
         this.owner = owner;
-        this.logoUrl = logoUrl;
+        this.organization = organization;
     }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
-    public User getOwner() {
-        return owner;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getId() {
         return id;
     }
 
-   public void setLogoUrl(String logoUrl) {
-       this.logoUrl = logoUrl;
-   }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    public String getDescription() {
+        return description;
+    }
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+    public User getOwner() {
+        return owner;
+    }
 
-   public String getLogoUrl() {
-       return logoUrl;
-   }
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
+    public Organization getOrganization() {
+        return organization;
+    }
 
-   public List<Project> getProjects() {
-       return projects;
-   }
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
+    }
+    public List<Task> getTasks() {
+        return tasks;
+    }
 
-   public void setProjects(List<Project> projects) {
-       this.projects = projects;
-   }
-
-    @Override
+     @Override
     public String toString() {
-        return "Organization{" +
+        return "Project{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", logoUrl='" + logoUrl + '\'' +
                 ", createdAt=" + createdAt +
                 ", ownerId=" + (owner != null ? owner.getId() : null) +
+                ", organizationId=" +
+                (organization != null ? organization.getId() : null) +
                 '}';
     }
     
